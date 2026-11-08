@@ -43,10 +43,15 @@ const FS=(()=>{
     try{const file=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return true}}
     catch(e){if(e&&e.name==='AbortError')return true}
     return false}
+  async function saveToFolder(id){ // системный выбор папки («Использовать эту папку») и запись туда файла
+    if(!window.showDirectoryPicker)return false;
+    let dir;try{dir=await window.showDirectoryPicker({mode:'readwrite'})}catch(e){return e&&e.name==='AbortError'?'cancel':false}
+    const{name,blob}=await fileOf(id),h=await dir.getFileHandle(name,{create:true}),w=await h.createWritable();
+    await w.write(blob);await w.close();return true}
   async function download(id){
     if(bridge())return share(id); // в WebView обычное скачивание не работает
     const{name,blob}=await fileOf(id),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)}
   function reset(){localStorage.removeItem(KEY);tx('readwrite',s=>s.clear());seed()}
   load();
-  return{get,kids,add,del,rename,setContent,path,zip,download,exists,unique,reset,b64,unb64,addBin,bytes:bytesOf,share,save,all:()=>Object.entries(db)};
+  return{get,kids,add,del,rename,setContent,path,zip,download,exists,unique,reset,b64,unb64,addBin,bytes:bytesOf,share,saveToFolder,save,all:()=>Object.entries(db)};
 })();

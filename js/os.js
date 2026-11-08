@@ -35,7 +35,7 @@ function explorer(startId='root'){
   b.innerHTML=`<div class="tools">
    <button data-c="open">Открыть</button><button data-c="back">←</button><button data-c="up">↑</button>
    <button data-c="nf">+ Папка</button><button data-c="nt">+ Файл</button><button data-c="up2">⇪ Загрузить</button>
-   <button data-c="zip">🗜️ В ZIP</button><button data-c="ren">Переименовать</button><button data-c="dl">⬇ Скачать</button><button data-c="share">↗ Поделиться</button><button data-c="del">🗑 Удалить</button></div>
+   <button data-c="zip">🗜️ В ZIP</button><button data-c="ren">Переименовать</button><button data-c="dl">⬇ Скачать</button><button data-c="share">↗ Поделиться</button><button data-c="tofolder">📂 В папку</button><button data-c="del">🗑 Удалить</button></div>
    <div class="path"></div><div class="files"></div><div class="stat"></div>`;
   const win=openWin('Проводник',640,420,b);
   const files=$('.files',b),upl=document.createElement('input');upl.type='file';upl.multiple=true;
@@ -67,6 +67,8 @@ function explorer(startId='root'){
     if(c==='zip'){if(!sel||FS.get(sel).type!=='folder')return alert('Выбери папку, которую нужно запаковать в ZIP.');await FS.zip(sel);draw()}
     if(c==='ren'&&sel){const n=prompt('Новое имя:',FS.get(sel).name);if(n&&!FS.exists(cwd,n,sel)){FS.rename(sel,n.trim());draw()}}
     if(c==='dl'){if(!sel)return alert('Сначала выбери файл или папку.');FS.download(sel)}
+    if(c==='tofolder'){if(!sel)return alert('Сначала выбери файл или папку.');
+      FS.saveToFolder(sel).then(r=>{if(r===true)alert('Сохранено в выбранную папку ✅');else if(r===false)alert('Выбор папки не поддерживается в этом браузере или приложении. Используй «Поделиться» или «Скачать».')}).catch(e=>alert('Не удалось сохранить: '+e.message))}
     if(c==='share'){if(!sel)return alert('Сначала выбери файл или папку.');FS.share(sel).then(ok=>{if(!ok){alert('Меню «Поделиться» недоступно в этом браузере, файл будет скачан.');FS.download(sel)}})}
     if(c==='del'&&sel&&confirm('Удалить «'+FS.get(sel).name+'»?')){FS.del(sel);sel=null;draw()}};
   draw();return win;
