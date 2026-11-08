@@ -1,0 +1,17 @@
+{
+  "name": "InherentOS",
+  "short_name": "InherentOS",
+  "description": "InherentOS 1.0.0 — операционная система в браузере",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0f1b21",
+  "theme_color": "#0d171c",
+  "lang": "ru",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
