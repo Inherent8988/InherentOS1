@@ -90,3 +90,5 @@ textarea{flex:1;width:100%;background:#0f1b21;color:var(--txt);border:0;padding:
 .win .title{touch-action:none}
 .bf{flex:1;min-height:0;width:100%;border:0;background:#fff}
 .bq{flex:1;min-width:120px;background:var(--bar);color:var(--txt);border:1px solid var(--line);border-radius:4px;padding:4px 8px;font:inherit}
+.bstart{flex:1;overflow:auto;padding:16px;background:var(--win)}.bstart h3{margin:0 0 8px}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:12px}.bgrid button{padding:12px 8px}
