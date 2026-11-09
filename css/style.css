@@ -87,3 +87,6 @@ textarea{flex:1;width:100%;background:#0f1b21;color:var(--txt);border:0;padding:
 .snav{width:150px;flex:none;border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:6px;overflow:auto}
 .sbrand{font-size:18px;font-weight:700;color:var(--acc);margin-bottom:10px}
 .snav button{text-align:left;padding:8px 10px}.snav button.on{border-color:var(--acc);background:#4fd1c533}
+.win .title{touch-action:none}
+.bf{flex:1;min-height:0;width:100%;border:0;background:#fff}
+.bq{flex:1;min-width:120px;background:var(--bar);color:var(--txt);border:1px solid var(--line);border-radius:4px;padding:4px 8px;font:inherit}
