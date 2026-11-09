@@ -19,10 +19,12 @@ function openWin(title,w,h,body,onclose){
   let prev;
   $('.title',el).addEventListener('click',e=>{const a=e.target.dataset.a;if(a==='x')close();if(a==='min')el.classList.add('hidden');
     if(a==='max'){if(prev){el.style.cssText=prev;prev=null}else{prev=el.style.cssText;el.style.cssText+=';left:0;top:0;width:100%;height:100%'}}});
-  $('.title',el).addEventListener('mousedown',e=>{if(e.target.tagName==='BUTTON'||prev)return;
-    const dx=e.clientX-el.offsetLeft,dy=e.clientY-el.offsetTop;
-    const mv=ev=>{el.style.left=Math.max(0,ev.clientX-dx)+'px';el.style.top=Math.max(0,ev.clientY-dy)+'px'};
-    const up=()=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up)};addEventListener('mousemove',mv);addEventListener('mouseup',up)});
+  const tl=$('.title',el); // перетаскивание окна: мышь и палец (pointer events)
+  tl.addEventListener('pointerdown',e=>{if(e.target.tagName==='BUTTON'||prev)return;
+    const dx=e.clientX-el.offsetLeft,dy=e.clientY-el.offsetTop;tl.setPointerCapture(e.pointerId);
+    const mv=ev=>{el.style.left=Math.max(0,Math.min(innerWidth-60,ev.clientX-dx))+'px';el.style.top=Math.max(0,Math.min(innerHeight-90,ev.clientY-dy))+'px'};
+    const up=()=>{tl.removeEventListener('pointermove',mv);tl.removeEventListener('pointerup',up);tl.removeEventListener('pointercancel',up)};
+    tl.addEventListener('pointermove',mv);tl.addEventListener('pointerup',up);tl.addEventListener('pointercancel',up)});
   return win;
 }
 
@@ -93,8 +95,8 @@ function notepad(id){
 }
 
 // Рабочий стол
-const apps={explorer:()=>explorer(),notepad:()=>notepad(),word:()=>word(),excel:()=>excel(),ppt:()=>ppt(),paint:()=>paint(),calc:()=>calc(),term:()=>term(),snake:()=>snake(),mines:()=>mines(),settings:()=>settings(),reset:()=>{if(confirm('Удалить все файлы и вернуть систему в исходное состояние?')){FS.reset();localStorage.removeItem('inherentos_icons');location.reload()}}};
-const LIST=[['explorer','🖥️','Мой компьютер'],['notepad','📝','Блокнот'],['word','📘','Word'],['excel','📗','Excel'],['ppt','📙','PowerPoint'],['paint','🎨','Paint'],['calc','🧮','Калькулятор'],['term','⌨️','Терминал'],['snake','🐍','Змейка'],['mines','💣','Сапёр'],['settings','⚙️','Настройки']];
+const apps={explorer:()=>explorer(),notepad:()=>notepad(),word:()=>word(),excel:()=>excel(),ppt:()=>ppt(),paint:()=>paint(),calc:()=>calc(),term:()=>term(),snake:()=>snake(),mines:()=>mines(),settings:()=>settings(),bing:()=>bing(),reset:()=>{if(confirm('Удалить все файлы и вернуть систему в исходное состояние?')){FS.reset();localStorage.removeItem('inherentos_icons');location.reload()}}};
+const LIST=[['explorer','🖥️','Мой компьютер'],['notepad','📝','Блокнот'],['word','📘','Word'],['excel','📗','Excel'],['ppt','📙','PowerPoint'],['paint','🎨','Paint'],['calc','🧮','Калькулятор'],['term','⌨️','Терминал'],['snake','🐍','Змейка'],['mines','💣','Сапёр'],['bing','🔎','Bing'],['settings','⚙️','Настройки']];
 $('#desktop').innerHTML=LIST.map(a=>`<div class="icon" data-app="${a[0]}"><b>${a[1]}</b>${a[2]}</div>`).join('');
 $('#start').innerHTML=LIST.map(a=>`<button data-app="${a[0]}">${a[1]} ${a[2]}</button>`).join('')+'<button data-app="reset">♻️ Сбросить систему</button>';
 
