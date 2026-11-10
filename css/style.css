@@ -92,3 +92,9 @@ textarea{flex:1;width:100%;background:#0f1b21;color:var(--txt);border:0;padding:
 .bq{flex:1;min-width:120px;background:var(--bar);color:var(--txt);border:1px solid var(--line);border-radius:4px;padding:4px 8px;font:inherit}
 .bstart{flex:1;overflow:auto;padding:16px;background:var(--win)}.bstart h3{margin:0 0 8px}
 .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:12px}.bgrid button{padding:12px 8px}
+.kov{position:fixed;inset:0;background:#000;z-index:30000;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;user-select:none}
+.kimg{width:100%;height:100%;object-fit:contain}.ktxt{font:700 28px/1.3 Consolas,monospace;color:#ff4d4d;text-align:center;padding:20px}
+.rsb{width:min(420px,86%);font-family:"Segoe UI",system-ui,sans-serif;text-align:center}.rst{font-size:22px;margin-bottom:16px}
+.rss{color:#9aa;font-size:14px;margin-bottom:12px;min-height:18px}.rbar{height:8px;background:#222;border-radius:4px;overflow:hidden}.rbar i{display:block;height:100%;width:0;background:#4fd1c5}.rsp{margin-top:8px;color:#9aa;font-size:13px}
+@keyframes glitch{0%{transform:translate(0)}25%{transform:translate(-5px,3px)}50%{transform:translate(4px,-3px)}75%{transform:translate(-3px,-4px)}100%{transform:translate(0)}}
+body.glitch #windows,body.glitch #desktop{animation:glitch .15s infinite;filter:hue-rotate(110deg) contrast(1.4) saturate(1.6)}
