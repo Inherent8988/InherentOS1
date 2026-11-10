@@ -28,7 +28,7 @@ function openWin(title,w,h,body,onclose){
   return win;
 }
 
-function openFile(id){const f=FS.get(id),e=ext(f.name),m={doc:word,csv:excel,slides:ppt};
+function openFile(id){const f=FS.get(id),e=ext(f.name),m={doc:word,csv:excel,slides:ppt,zip:openZip};
   if(AUD.test(e)||VID.test(e))player(id);else if(IMG.test(e))viewer(id);else m[e]?m[e](id):f.bin?FS.download(id):notepad(id)}
 
 function explorer(startId='root'){
