@@ -95,10 +95,10 @@ function notepad(id){
 }
 
 // Рабочий стол
-const apps={explorer:()=>explorer(),notepad:()=>notepad(),word:()=>word(),excel:()=>excel(),ppt:()=>ppt(),paint:()=>paint(),calc:()=>calc(),term:()=>term(),snake:()=>snake(),mines:()=>mines(),settings:()=>settings(),browser:()=>browser(),reset:()=>{if(confirm('Удалить все файлы и вернуть систему в исходное состояние?')){FS.reset();localStorage.removeItem('inherentos_icons');location.reload()}}};
+const apps={explorer:()=>explorer(),notepad:()=>notepad(),word:()=>word(),excel:()=>excel(),ppt:()=>ppt(),paint:()=>paint(),calc:()=>calc(),term:()=>term(),snake:()=>snake(),mines:()=>mines(),settings:()=>settings(),power:()=>powerOff(),restart:()=>powerOff(true),browser:()=>browser(),reset:()=>{if(confirm('Удалить все файлы и вернуть систему в исходное состояние?')){FS.reset();localStorage.removeItem('inherentos_icons');location.reload()}}};
 const LIST=[['explorer','🖥️','Мой компьютер'],['notepad','📝','Блокнот'],['word','📘','Word'],['excel','📗','Excel'],['ppt','📙','PowerPoint'],['paint','🎨','Paint'],['calc','🧮','Калькулятор'],['term','⌨️','Терминал'],['snake','🐍','Змейка'],['mines','💣','Сапёр'],['browser','🌐','Browser'],['settings','⚙️','Настройки']];
 $('#desktop').innerHTML=LIST.map(a=>`<div class="icon" data-app="${a[0]}"><b>${a[1]}</b>${a[2]}</div>`).join('');
-$('#start').innerHTML=LIST.map(a=>`<button data-app="${a[0]}">${a[1]} ${a[2]}</button>`).join('')+'<button data-app="reset">♻️ Сбросить систему</button>';
+$('#start').innerHTML=LIST.map(a=>`<button data-app="${a[0]}">${a[1]} ${a[2]}</button>`).join('')+'<button data-app="power">⏻ Выключить</button><button data-app="restart">↻ Перезагрузить</button><button data-app="reset">♻️ Сбросить систему</button>';
 
 $('#start').onclick=e=>{const a=e.target.dataset.app;if(a){apps[a]();$('#start').classList.add('hidden')}};
 $('#startbtn').onclick=e=>{e.stopPropagation();$('#start').classList.toggle('hidden')};

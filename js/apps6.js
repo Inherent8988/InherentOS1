@@ -31,12 +31,31 @@ async function unpackZip(id,entries){
   return root;
 }
 
+const fmtB=n=>n>=1048576?(n/1048576).toFixed(1)+' МБ':n>=1024?Math.round(n/1024)+' КБ':n+' Б';
 async function openZip(id){
+  const sz=FS.get(id).size||0;
+  if(sz>200*1048576&&!confirm('ZIP очень большой ('+fmtB(sz)+'). Открытие может зависнуть. Продолжить?'))return;
   let ent;try{ent=await ZIP.read(await FS.bytes(id))}catch(e){return FS.download(id)}
-  const m=ent.find(x=>!x.dir&&x.path.toLowerCase()==='manifest.json');let man=null;
-  if(m){try{man=JSON.parse(new TextDecoder().decode(m.data))}catch(e){}}
-  if(man&&man.type==='virus')return runVirus(man,ent);
-  if(confirm('Распаковать «'+FS.get(id).name+'» в папку рядом?')){await unpackZip(id,ent);alert('Готово: архив распакован. Обнови окно Проводника (← и обратно).')}
+  // структура вируса: manifest.json или любой JSON в корне архива с "type": "virus"
+  const roots=ent.filter(x=>!x.dir&&!x.path.includes('/')&&/\.json$/i.test(x.path)).sort((a,b)=>(/^manifest\.json$/i.test(b.path)?1:0)-(/^manifest\.json$/i.test(a.path)?1:0));
+  for(const j of roots){let man=null;try{man=JSON.parse(new TextDecoder().decode(j.data))}catch(e){}
+    if(man&&typeof man==='object'&&man.type==='virus')return runVirus(man,ent)}
+  zipWindow(id,ent); // обычный ZIP: открываем как папку
+}
+function zipWindow(id,ent){
+  const f=FS.get(id),b=el('<div class="tools"><button data-c="unpack">📂 Распаковать в папку</button><button data-c="dl">⬇ Скачать ZIP</button></div><div class="zl"></div><div class="stat"></div>'),list=b.querySelector('.zl');
+  const items=ent.filter(e=>e.path.replace(/\/$/,''));
+  items.forEach((e,i)=>{const x=document.createElement('button');x.textContent=(e.dir?'📁 ':'📄 ')+e.path+(e.dir?'':'  ('+fmtB(e.data.length)+')');x.dataset.i=i;if(e.dir)x.disabled=true;list.append(x)});
+  b.querySelector('.stat').textContent=ent.filter(e=>!e.dir).length+' файлов · нажми на файл, чтобы посмотреть (текст и картинки)';
+  openWin('ZIP — '+f.name,520,400,b);
+  b.onclick=async e=>{const c=e.target.dataset.c;
+    if(c==='unpack'){await unpackZip(id,ent);alert('Готово: архив распакован в папку рядом с ним. Обнови окно Проводника (← и обратно).')}
+    if(c==='dl')FS.download(id);
+    if(e.target.dataset.i!==undefined){const it=items[+e.target.dataset.i],name=it.path.split('/').pop(),ex=ext(name);
+      if(IMG.test(ex)&&ex!=='svg'){const w=el('<div class="vw"><img alt=""></div>');w.querySelector('img').src=URL.createObjectURL(new Blob([it.data],{type:mime(name)}));w.querySelector('img').style.cssText='width:100%;height:100%;object-fit:contain';openWin(name,480,360,w)}
+      else{let t=null;if(!MEDIA.test(name))try{t=new TextDecoder('utf-8',{fatal:true}).decode(it.data)}catch(x){}
+        if(t===null)alert('Этот файл нельзя посмотреть внутри ZIP. Распакуй архив и открой файл из папки.');
+        else{const w=el('<textarea readonly></textarea>');w.querySelector('textarea').value=t;openWin(name,480,360,w)}}}};
 }
 
 async function runVirus(man,ent){
