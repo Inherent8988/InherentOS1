@@ -51,7 +51,7 @@ const FS=(()=>{
   async function download(id){
     if(bridge())return share(id); // в WebView обычное скачивание не работает
     const{name,blob}=await fileOf(id),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)}
-  function reset(){localStorage.removeItem(KEY);const p=tx('readwrite',s=>s.clear());seed();return p}
+  function reset(){localStorage.removeItem(KEY);localStorage.removeItem('inherentos_installed');const p=tx('readwrite',s=>s.clear());seed();return p}
   load();
   return{get,kids,add,del,rename,setContent,path,zip,download,exists,unique,reset,b64,unb64,addBin,bytes:bytesOf,share,saveToFolder,save,all:()=>Object.entries(db)};
 })();
