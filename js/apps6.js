@@ -42,20 +42,40 @@ async function openZip(id){
     if(man&&typeof man==='object'&&man.type==='virus')return runVirus(man,ent)}
   zipWindow(id,ent); // обычный ZIP: открываем как папку
 }
+function zipList(ent,cwd){ // содержимое одной папки внутри ZIP: подпапки и файлы только этого уровня
+  const dirs=new Set(),fl=[];
+  for(const e of ent){const p=e.path.split('/').filter(Boolean);
+    if(p.length<=cwd.length||!cwd.every((s,i)=>p[i]===s))continue;
+    if(p.length>cwd.length+1||e.dir)dirs.add(p[cwd.length]);else fl.push({name:p[cwd.length],data:e.data})}
+  return{dirs:[...dirs].sort(),files:fl.sort((a,b)=>a.name.localeCompare(b.name))};
+}
 function zipWindow(id,ent){
-  const f=FS.get(id),b=el('<div class="tools"><button data-c="unpack">📂 Распаковать в папку</button><button data-c="dl">⬇ Скачать ZIP</button></div><div class="zl"></div><div class="stat"></div>'),list=b.querySelector('.zl');
-  const items=ent.filter(e=>e.path.replace(/\/$/,''));
-  items.forEach((e,i)=>{const x=document.createElement('button');x.textContent=(e.dir?'📁 ':'📄 ')+e.path+(e.dir?'':'  ('+fmtB(e.data.length)+')');x.dataset.i=i;if(e.dir)x.disabled=true;list.append(x)});
-  b.querySelector('.stat').textContent=ent.filter(e=>!e.dir).length+' файлов · нажми на файл, чтобы посмотреть (текст и картинки)';
-  openWin('ZIP — '+f.name,520,400,b);
-  b.onclick=async e=>{const c=e.target.dataset.c;
+  const f=FS.get(id),cwd=[];let cur=[];
+  const b=el('<div class="tools"><button data-c="up">↑ Наверх</button><button data-c="unpack">📂 Распаковать всё в папку</button><button data-c="dl">⬇ Скачать ZIP</button></div><div class="path"></div><div class="zl"></div><div class="stat"></div>');
+  const list=b.querySelector('.zl'),path=b.querySelector('.path'),stat=b.querySelector('.stat');
+  const win=openWin('ZIP — '+f.name,520,400,b);
+  const draw=()=>{
+    const r=zipList(ent,cwd);cur=r.files;list.innerHTML='';
+    path.textContent='📦 '+f.name+(cwd.length?' / '+cwd.join(' / '):'');
+    r.dirs.forEach(d=>{const x=document.createElement('button');x.textContent='📁 '+d;x.dataset.d=d;list.append(x)});
+    r.files.forEach((fi,i)=>{const x=document.createElement('button');x.textContent='📄 '+fi.name+'  ('+fmtB(fi.data.length)+')';x.dataset.f=i;list.append(x)});
+    if(!r.dirs.length&&!r.files.length){const x=document.createElement('div');x.className='dim';x.style.padding='8px';x.textContent='Папка пуста';list.append(x)}
+    stat.textContent=r.dirs.length+' папок · '+r.files.length+' файлов · нажми на папку или файл, чтобы открыть';
+    b.querySelector('[data-c=up]').disabled=!cwd.length;
+  };
+  const preview=it=>{const ex=ext(it.name);
+    if(IMG.test(ex)&&ex!=='svg'){const w=el('<div class="vw"><img alt=""></div>'),im=w.querySelector('img');
+      im.src=URL.createObjectURL(new Blob([it.data],{type:mime(it.name)}));im.style.cssText='width:100%;height:100%;object-fit:contain';openWin(it.name,480,360,w);return}
+    let t=null;if(!MEDIA.test(it.name))try{t=new TextDecoder('utf-8',{fatal:true}).decode(it.data)}catch(x){}
+    if(t===null)return alert('Этот файл нельзя посмотреть внутри ZIP. Распакуй архив и открой файл из папки.');
+    const w=el('<textarea readonly></textarea>');w.querySelector('textarea').value=t;openWin(it.name,480,360,w)};
+  b.onclick=async e=>{const t=e.target,c=t.dataset.c;
+    if(t.dataset.d!==undefined){cwd.push(t.dataset.d);draw();return}
+    if(t.dataset.f!==undefined){preview(cur[+t.dataset.f]);return}
+    if(c==='up'&&cwd.length){cwd.pop();draw()}
     if(c==='unpack'){await unpackZip(id,ent);alert('Готово: архив распакован в папку рядом с ним. Обнови окно Проводника (← и обратно).')}
-    if(c==='dl')FS.download(id);
-    if(e.target.dataset.i!==undefined){const it=items[+e.target.dataset.i],name=it.path.split('/').pop(),ex=ext(name);
-      if(IMG.test(ex)&&ex!=='svg'){const w=el('<div class="vw"><img alt=""></div>');w.querySelector('img').src=URL.createObjectURL(new Blob([it.data],{type:mime(name)}));w.querySelector('img').style.cssText='width:100%;height:100%;object-fit:contain';openWin(name,480,360,w)}
-      else{let t=null;if(!MEDIA.test(name))try{t=new TextDecoder('utf-8',{fatal:true}).decode(it.data)}catch(x){}
-        if(t===null)alert('Этот файл нельзя посмотреть внутри ZIP. Распакуй архив и открой файл из папки.');
-        else{const w=el('<textarea readonly></textarea>');w.querySelector('textarea').value=t;openWin(name,480,360,w)}}}};
+    if(c==='dl')FS.download(id)};
+  draw();
 }
 
 async function runVirus(man,ent){
